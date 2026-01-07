@@ -1,0 +1,9 @@
+{
+  "name": "@pixelin-medium/utils",
+  "module": "index.js",
+  "type": "module",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./index.js"
+  }
+}

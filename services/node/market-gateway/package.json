@@ -1,0 +1,21 @@
+{
+  "name": "@pixelin-medium/market-gateway",
+  "imports": {
+    "#api/*": "./src/api/*",
+    "#ws/*": "./src/ws/*",
+    "#store/*": "./src/store/*",
+    "#struct/*": "./src/struct/*"
+  },
+  "private": true,
+  "scripts": {
+    "start": "bun src/server.js",
+    "dev": "bun src/server.js"
+  },
+  "type": "module",
+  "module": "index.js",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ws": "^8.18.3",
+    "@pixelin-medium/utils": "^1.0.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "pixelin-medium",
+  "module": "app.js",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun run -cwd services/node/market-gateway/src/server.js dev"
+  },
+  "workspaces": [
+    "services/node/*",
+    "packages/*"
+  ]
+}
