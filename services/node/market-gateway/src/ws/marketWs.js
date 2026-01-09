@@ -65,7 +65,6 @@ function startMarketWS() {
 
             storeMarketData(normalized.token_name, normalized);
 
-            appendFeed(normalized);
 
             console.log(
                 "Stored:",

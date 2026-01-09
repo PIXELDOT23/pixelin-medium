@@ -34,7 +34,6 @@ class NeoFeedClient:
         self.validated = False
         self.connected = False
         self.subscribed = False
-        self.quote = False
         self.running = False
 
         # Thread-safe lock
@@ -43,7 +42,7 @@ class NeoFeedClient:
         # watchdog
         self.last_message_ts = time.time()
         self.watchdog_interval = 10         # check every N seconds
-        self.watchdog_threshold = 120        # restart if no message for N seconds
+        self.watchdog_threshold = 180        # restart if no message for N seconds
 
         # stop event
         self._stop_event = threading.Event()
@@ -97,6 +96,13 @@ class NeoFeedClient:
             self.client.subscribe(
                 instrument_tokens=self.instrument_tokens,
                 isIndex=False,
+                isDepth=False
+            )
+
+            # Depth
+            self.client.subscribe(
+                instrument_tokens=self.instrument_tokens,
+                isIndex=False,
                 isDepth=True
             )
 
@@ -106,18 +112,6 @@ class NeoFeedClient:
         except Exception as e:
             print("[NeoFeedClient] Subscribe failed:", e)
             self.subscribed = False
-            return False
-
-    # Quote
-    def _quote(self):
-        try:
-            self.client.quotes(instrument_tokens=self.instrument_tokens, quote_type="all")
-            self.quote = True
-            print("[NeoFeedClient] Quote ok")
-
-        except Exception as e:
-            print("[NeoFeedClient] Quote failed:", e)
-            self.quote = False
             return False
 
     def start(self):
@@ -165,14 +159,6 @@ class NeoFeedClient:
                 ok = self._subscribe()
                 if not ok:
                     print(f"[NeoFeedClient] Subscribe failed: retry in {backoff}s")
-                    time.sleep(backoff)
-                    backoff = min(backoff * 2, 60)
-                    continue
-
-                # Quote
-                ok = self._quote()
-                if not ok:
-                    print(f"[NeoFeedClient] Quote failed: retry in {backoff}s")
                     time.sleep(backoff)
                     backoff = min(backoff * 2, 60)
                     continue

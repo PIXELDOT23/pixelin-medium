@@ -16,6 +16,6 @@ MPIN = os.getenv("NEO_MPIN", "192001")
 
 # list of instrument dicts as strings or environment config
 INSTRUMENT_TOKENS = [
-    {"instrument_token": "465849", "exchange_segment": "mcx_fo"}
+    {"instrument_token": "2932", "exchange_segment": "cde_fo"}
 ]
 # 2932 465849
