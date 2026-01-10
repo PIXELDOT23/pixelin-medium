@@ -29,8 +29,19 @@ function getByKey(key) {
 
 }
 
+function normalizeQuote(record) {
+    const [quote] = record.data; // same as record.data[0]
+
+    return {
+        local: record.local,
+        ...quote,
+    };
+}
+
+
 export {
     storeMarketData,
     getMarketData,
-    getByKey
+    getByKey,
+    normalizeQuote
 };

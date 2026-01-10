@@ -3,7 +3,7 @@ import { WebSocketServer } from 'ws';
 
 // Import Services
 import { storeMarketData } from "#store/marketDataStore.js";
-import { updateQuote, updateDepth, isSnapReady, getState } from '#struct/marketState.js'
+import { updateQuote, updateDepth, getState, canMerge } from '#struct/marketState.js'
 
 // Import Util
 import { normalizeFeed, appendFeed } from "@pixelin-medium/utils";
@@ -59,12 +59,15 @@ function startMarketWS() {
             const { quote, depth } = getState(parsed?.tk);
             if (!quote) return;
 
+            if (!canMerge(quote, depth)) return;
+
             // Normalize (QUOTE or DEPTH)
             const normalized = normalizeFeed({ tk: parsed?.tk, quote, depth });
             if (!normalized) return;
 
             storeMarketData(normalized.token_name, normalized);
 
+            appendFeed(normalized)
 
             console.log(
                 "Stored:",

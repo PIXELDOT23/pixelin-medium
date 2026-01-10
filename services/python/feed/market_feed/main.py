@@ -1,37 +1,52 @@
-# Import Modules
-import signal
+# Import Packages
 import time
 import threading
+import signal
 
+# Import Configs
+from config import INSTRUMENT_TOKENS, NODE_WS_URL
+
+# Import Modules
 from ws_publisher import WSPublisher
-from feed_client import NeoFeedClient
+from neo_login import NeoLoginManager
+from sf_socket import NeoSFClient
+from dp_socket import NeoDPClient
+
+def health_monitor(feeds):
+    while True:
+        for f in feeds:
+            age = time.time() - f.last_msg_ts if f.last_msg_ts else -1
+            print(
+                f"[HEALTH] {f.name} | age={age:.2f}s | reconnects={f.reconnects}"
+            )
+        time.sleep(5)
 
 def run():
-    publisher = WSPublisher()           # Connects to Node websocket server
-    feed = NeoFeedClient(publisher)     # wire feed to publisher
-    # Setup signal handlers for clean shutdown
-    shutdown_event = threading.Event()
+    publisher = WSPublisher(NODE_WS_URL)
+    login_mgr = NeoLoginManager()
 
-    def _signal_handler(sig, frame):
-        print("\n🔴 [runner] Caught signal, shutting down...")
-        shutdown_event.set()
-        feed.stop()
+    sf = NeoSFClient("SF", login_mgr.create_client, publisher, INSTRUMENT_TOKENS)
+    dp = NeoDPClient("DP", login_mgr.create_client, publisher, INSTRUMENT_TOKENS)
+
+    sf.start()
+    dp.start()
+
+    threading.Thread(target=health_monitor, args=([sf, dp],), daemon=True).start()
+
+    stop = threading.Event()
+
+    def shutdown(sig, frame):
+        print("🔴 Shutting down...")
+        stop.set()
+        sf.stop()
+        dp.stop()
         publisher.close()
 
-    signal.signal(signal.SIGINT, _signal_handler)
-    signal.signal(signal.SIGTERM, _signal_handler)
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
 
-    # Start Neo feed client
-    feed.start()
+    while not stop.is_set():
+        time.sleep(1)
 
-    try:
-        while not shutdown_event.is_set():
-            time.sleep(1)
-    except KeyboardInterrupt:
-        _signal_handler(None, None)
-
-    print("🔴 [runner] Exiting.")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

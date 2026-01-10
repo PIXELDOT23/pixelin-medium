@@ -2,7 +2,7 @@
 import threading
 import json
 
-from websocket import create_connection, WebSocketConnectionClosedException, WebSocketException
+from websocket import create_connection, WebSocketConnectionClosedException
 from config import NODE_WS_URL
 
 class WSPublisher:
@@ -43,25 +43,10 @@ class WSPublisher:
                 return True
 
             except WebSocketConnectionClosedException:
+                self.ws = None
                 print("🔴 WS closed, reconnecting...")
-                self._connect()
-                if self.ws:
-                    try:
-                        self.ws.send(msg)
-                        return True
-
-                    except Exception as e:
-                        print("🔴 [WSPublisher] Send after reconnect failed:", e)
-
-            except WebSocketException as e:
-                print("🔴 [WSPublisher] WS send failed (WebSocketException):", e)
-                # try to reconnect once
-                self._connect()
                 return False
 
-            except Exception as e:
-                print("🔴 [WSPublisher] WS send failed:", e)
-                return False
 
     def close(self):
         with self.lock:

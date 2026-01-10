@@ -10,10 +10,14 @@
   },
   "private": true,
   "scripts": {
-    "dev": "bun run -cwd services/node/market-gateway/src/server.js dev"
+    "dev": "bun run -cwd services/node/market-gateway/src/Engine.js dev",
+    "engine": "node run services/node/market-gateway/src/Engine.js"
   },
   "workspaces": [
     "services/node/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
 }

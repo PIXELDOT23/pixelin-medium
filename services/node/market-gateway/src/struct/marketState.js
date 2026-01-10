@@ -73,9 +73,19 @@ function getState(tk)
 
 }
 
+const MAX_SKEW_MS = 1000;
+
+function canMerge(q, d) {
+
+    return q && d && Math.abs(q.__ts - d.__ts) < MAX_SKEW_MS;
+
+}
+
+
 export {
     updateQuote,
     updateDepth,
     isSnapReady,
-    getState
+    getState,
+    canMerge
 };
